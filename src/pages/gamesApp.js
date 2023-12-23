@@ -5,13 +5,19 @@ import SearchInput from "../components/searchInput";
 import { Flowbite } from 'flowbite-react';
 import mainTheme from '../themes/mainTheme';
 import SpinnerComponent from "../components/spinner";
+import Dropdown from "../components/dropdown";
 
 export default function GamesApp() {
   const [games, setGames] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
+
   const GAMES_URL = "http://localhost:3005/games";
+  const GENRES_URL = "http://localhost:3005/genres";
+  const PLATFORMS_URL = "http://localhost:3005/platforms";
 
   const handleSearch = async (search) => {
-    if (search.length == 1) {
+    if (search.length === 1) {
       const response = await axios.get(GAMES_URL);
       setGames(response.data);
       return;
@@ -25,18 +31,38 @@ export default function GamesApp() {
   };  
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(GAMES_URL);
-        setGames(response.data);
-      } catch (error) {
-        console.error('Erro:', error);
-      }
-    };
+  const fetchGames = async () => {
+    try {
+      const response = await axios.get(GAMES_URL);
+      setGames(response.data);
+    } catch (error) {
+      console.error('Erro ao obter dados de jogos:', error);
+    }
+  };
 
-    fetchData();
-    
-  }, []);
+  const fetchGenres = async () => {
+    try {
+      const response = await axios.get(GENRES_URL);
+      setGenres(response.data);
+    } catch (error) {
+      console.error('Erro ao obter dados de gêneros:', error);
+    }
+  };
+
+  const fetchPlatforms = async () => {
+    try {
+      const response = await axios.get(PLATFORMS_URL);
+      setPlatforms(response.data);
+    } catch (error) {
+      console.error('Erro ao obter dados de plataformas:', error);
+    }
+  };
+
+  fetchGames();
+  fetchGenres();
+  fetchPlatforms();
+}, []);
+
 
   return (
     !games ? 
@@ -50,6 +76,11 @@ export default function GamesApp() {
             <div className="w-full flex justify-between">
               <h2 className="text-2xl font-bold tracking-tight text-gray-900 mb-4">Lista de jogos</h2>
               <SearchInput function={handleSearch}/>
+              <Dropdown title = "Genres"
+                        items = {genres}/>
+
+              <Dropdown title = "Platforms"
+                        items = {platforms}/>
             </div>
             {games.length > 0 ? <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
               {games && games.map((game) => (
